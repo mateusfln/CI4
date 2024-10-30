@@ -1,0 +1,42 @@
+version: '3'
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: basic_crud
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./dockerfiles/configs/mysql.cnf:/etc/mysql/my.cnf
+    ports:
+      - "3366:3306"
+    networks:
+      - local_network
+
+  php:
+    build:
+      context: ./dockerfiles
+      dockerfile: Dockerfile-php8-3
+    image: my_php_8_3
+    container_name: php_8_3
+    restart: always
+    ports:
+      - "81:80"
+    volumes:
+      - .:/var/www
+      - ./public:/var/www/html
+      - ./dockerfiles/configs/php.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - local_network
+    depends_on:
+      - db
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  local_network:
+    driver: bridge

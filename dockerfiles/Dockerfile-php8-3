@@ -1,0 +1,18 @@
+FROM --platform=linux/amd64 php:8.3-apache
+
+RUN a2enmod rewrite \
+    ##&& sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list \
+    ##&& sed -i 's|security.debian.org|archive.debian.org/|g' /etc/apt/sources.list \
+    ##&& sed -i '/stretch-updates/d' /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get -y install libxml2-dev zip unzip firebird-dev curl libjpeg-dev libpng-dev libfreetype6-dev libz-dev libtiff-dev git \
+    && docker-php-ext-install pdo pdo_mysql dom intl soap gd \
+    && chmod -R 777 /var/www \
+    && curl --show-error https://getcomposer.org/installer -o /tmp/composer-setup.php \
+    && php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && composer self-update --2 \
+    && usermod -u 1000 www-data && groupmod -g 1000 www-data \
+    && sed -i 's/APACHE_RUN_GROUP:=www-data/APACHE_RUN_GROUP:=root/g' /etc/apache2/envvars
+WORKDIR /var/www
+
+CMD ["apache2-foreground"]
