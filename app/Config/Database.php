@@ -26,7 +26,7 @@ class Database extends Config
      */
     public array $default = [
         'DSN'          => '',
-        'hostname'     => 'localhost',
+        'hostname'     => 'mysql_8',
         'username'     => '',
         'password'     => '',
         'database'     => '',
@@ -195,14 +195,6 @@ class Database extends Config
         // we are currently running an automated test suite, so that
         // we don't overwrite live data on accident.
 
-        switch (ENVIRONMENT) {
-            case 'development':
-                $this->default["hostname"] = $_ENV["DB_HOST_LOCAL"];
-                $this->default["username"] = $_ENV["DB_USER_LOCAL"];
-                $this->default["password"] = $_ENV["DB_PASS_LOCAL"];
-                $this->default["database"] = $_ENV["DB_NAME_LOCAL"];
-                break;
-        }
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
         }

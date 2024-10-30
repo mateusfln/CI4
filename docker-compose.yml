@@ -11,7 +11,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./dockerfiles/configs/mysql.cnf:/etc/mysql/my.cnf
     ports:
-      - "3366:3306"
+      - "3333:3306"
     networks:
       - local_network
 
