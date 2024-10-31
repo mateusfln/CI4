@@ -4,9 +4,6 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Models\TaskModel;
-use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Model;
-use CodeIgniter\Router\Router;
 
 class Task extends BaseController
 {
@@ -17,24 +14,32 @@ class Task extends BaseController
         $this->taskModel = new TaskModel();
     }
 
-    public function index(string $message = null): String
+    public function index()
     {
         return view('tasks', [
             'tasks' => $this->taskModel->findAll(),
-            'message' => $message,
+            'message' => session()->getFlashdata('success'), // Usando session() para acessar flashdata
         ]);
     }
 
-    public function create(): String
+    public function create()
     {
         return view('form');
     }
 
     public function store()
     {
-        if($this->taskModel->save($this->request->getPost())){
-            return $this->index('Task successfully created!');
+        $postData = $this->request->getPost();
+        if ($this->taskModel->save($postData)) {
+            $postData['id'] 
+            ? session()->setFlashdata('success', 'Task successfully updated!')
+            : session()->setFlashdata('success', 'Task successfully created!');
+            return redirect('tasks');
         }
+
+        session()->setFlashdata('error', 'Failed to create task.');
+        return redirect()->back()->withInput();
+    
     }
 
     public function update($id)
@@ -44,11 +49,14 @@ class Task extends BaseController
         ]);
     }
 
-    public function delete($id): String
+    public function delete($id)
     {
-        if(!$this->taskModel->delete($id)){
-            
+        if ($this->taskModel->delete($id)) {
+            session()->setFlashdata('success', 'Task '. $id .' successfully deleted!');
+        } else {
+            session()->setFlashdata('error', 'Failed to delete task.');
         }
-        return $this->index('Task '. $id .' successfully deleted!');
+
+        return redirect('tasks');
     }
 }
