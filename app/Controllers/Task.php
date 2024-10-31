@@ -18,7 +18,6 @@ class Task extends BaseController
     {
         return view('tasks', [
             'tasks' => $this->taskModel->findAll(),
-            'message' => session()->getFlashdata('success'), // Usando session() para acessar flashdata
         ]);
     }
 
@@ -31,9 +30,7 @@ class Task extends BaseController
     {
         $postData = $this->request->getPost();
         if ($this->taskModel->save($postData)) {
-            $postData['id'] 
-            ? session()->setFlashdata('success', 'Task successfully updated!')
-            : session()->setFlashdata('success', 'Task successfully created!');
+            session()->setFlashdata('success', 'Task successfully '. ($postData['id'] ? 'updated!' : 'created!'));
             return redirect('tasks');
         }
 
@@ -51,11 +48,9 @@ class Task extends BaseController
 
     public function delete($id)
     {
-        if ($this->taskModel->delete($id)) {
-            session()->setFlashdata('success', 'Task '. $id .' successfully deleted!');
-        } else {
-            session()->setFlashdata('error', 'Failed to delete task.');
-        }
+        $this->taskModel->delete($id)
+            ? session()->setFlashdata('success', 'Task '. $id .' successfully deleted!')
+            : session()->setFlashdata('error', 'Failed to delete task.');
 
         return redirect('tasks');
     }
